@@ -8,14 +8,15 @@ import {
   Button,
   Container,
   FormControl,
-  Icon,
-  Input,
-  InputGroup,
+  Spinner,
+  Text,
 } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import FileUpload from "./fileUpload";
-import { ChevronRightIcon } from "@chakra-ui/icons";
+import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import { FaPlus } from "react-icons/fa6";
 import { useMutation } from "@tanstack/react-query";
+import { IoMdDownload } from "react-icons/io";
 
 const counterMachine = createMachine({
   initial: "upload",
@@ -48,18 +49,21 @@ const ConvertResume = () => {
   const [file, setFile] = useState<File | null>(null);
   const [conversionError, setConversionError] = useState<string | null>(null);
   const [fileData, setFileData] = useState<string | ArrayBuffer | null>(null);
+  const [cancelHover, setCancelHover] = useState(false);
+  const [convertedFile, setConvertedFile] = useState<Blob | null>(null);
 
   const reset = () => {
     setFile(null);
     setFileData(null);
     setConversionError(null);
+    setCancelHover(false);
+    setConvertedFile(null);
   };
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>();
-  const onSubmit = handleSubmit((data) => console.log("On Submit: ", data));
 
   const validateFile = (file: File) => {
     if (file.size > 1000000) {
@@ -78,12 +82,28 @@ const ConvertResume = () => {
     return true;
   };
 
+  const mapFileToType = (file: File) => {
+    const fileType = file.name.split(".").pop();
+    if (fileType == "pdf") {
+      return "application/pdf";
+    } else if (fileType == "jpg" || fileType == "jpeg") {
+      return "image/jpeg";
+    } else if (fileType == "png") {
+      return "image/png";
+    }
+    return "";
+  };
   const post = (fileData: string | ArrayBuffer) => {
     const formData = new FormData();
-    if (fileData) {
-      formData.append("file", new Blob([fileData]));
+    if (file && fileData) {
+      const fileToSend = new File([fileData], file.name, {
+        type: mapFileToType(file),
+      });
+      formData.append("file", fileToSend);
     }
-    return fetch("https://api.resume.tonyzhou.ca/api/convertResume", {
+    // https://api.resume.tonyzhou.ca
+    // http://localhost:5000
+    return fetch("https://api.resume.tonyzhou.ca/v1/convert", {
       method: "POST",
       body: formData,
     });
@@ -91,16 +111,20 @@ const ConvertResume = () => {
 
   const { mutate } = useMutation({
     mutationFn: post,
-    onSuccess: (data: unknown) => {
-      console.log(data);
+    onSuccess: async (response: any) => {
+      if (state.matches("processing")) {
+        const blob = await response.blob();
+        setConvertedFile(blob);
+        send({ type: "READY" });
+      }
     },
     onError: (error: unknown) => {
       setConversionError(`${error}`);
+      send({ type: "CANCEL" });
     },
   });
 
   const handleSubmitResume = () => {
-    console.log('a')
     if (!fileData) {
       alert("Please upload your Resume");
       return;
@@ -108,6 +132,24 @@ const ConvertResume = () => {
     mutate(fileData);
     send({ type: "SUBMIT" });
   };
+
+  async function downloadBlobAsZip(blob: Blob, fileName: string) {
+    // Create a URL for the Blob object
+    const url = window.URL.createObjectURL(blob);
+
+    // Create a link element to trigger the download
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+
+    // Click the link to trigger the download
+    a.click();
+
+    // Clean up
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
 
   const validateFiles = (acceptedFiles: File[]) => {
     const firstFile = acceptedFiles[0];
@@ -129,10 +171,12 @@ const ConvertResume = () => {
   return (
     <Container backgroundColor="#00000090" borderRadius="15" padding="5">
       {state.matches("upload") && (
-        <FormControl
-          display="flex"
-          flexDirection="column"
-        >
+        <FormControl display="flex" flexDirection="column">
+          {conversionError && (
+            <Text fontSize="xs" color="red" textAlign="center">
+              Something went wrong, please try again or try a different file
+            </Text>
+          )}
           <FileUpload onDrop={validateFiles} file={file} onRemove={reset} />
           <Button
             type="submit"
@@ -148,9 +192,90 @@ const ConvertResume = () => {
           </Button>
         </FormControl>
       )}
-      {state.matches("processing") && (
-        <Box>
-            processing
+      {state.matches("processing") && file && (
+        <Box display="flex" flexDirection="column">
+          <Box
+            borderRadius="5"
+            padding="3"
+            margin={2}
+            bg="#FFFFFF11"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Text>{file.name}</Text>
+            <Text>{file.size / 1000} KB</Text>
+          </Box>
+          <Text fontSize="xs" color="#FFFFFF66" textAlign="center">
+            This process typically takes ~10s
+          </Text>
+          <Button
+            type="submit"
+            onMouseEnter={() => setCancelHover(true)}
+            onMouseLeave={() => setCancelHover(false)}
+            onClick={() => {
+              send({ type: "CANCEL" });
+              setCancelHover(false);
+            }}
+            leftIcon={!cancelHover ? <Spinner size="sm" /> : undefined}
+            colorScheme="green"
+            margin={2}
+          >
+            {cancelHover ? "Cancel" : "Converting"}
+          </Button>
+        </Box>
+      )}
+      {state.matches("download") && file && convertedFile && (
+        <Box display="flex" flexDirection="column">
+          <Box
+            borderRadius="5"
+            padding="3"
+            margin={2}
+            bg="#FFFFFF11"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Text>{file.name}</Text>
+            <Text>{file.size / 1000} KB</Text>
+          </Box>
+          <Text fontSize="xs" textAlign="center">
+            Your Files are Ready
+          </Text>
+          <Box
+            borderRadius="5"
+            padding="3"
+            margin={2}
+            bg="#FFFFFF11"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Text>resume.zip</Text>
+            <Text>{convertedFile.size / 1000} KB</Text>
+          </Box>
+          <Button
+            leftIcon={<IoMdDownload />}
+            colorScheme="green"
+            margin={2}
+            onClick={() => {
+              downloadBlobAsZip(convertedFile, "resume.zip");
+            }}
+          >
+            Download
+          </Button>
+          <Button
+            leftIcon={<FaPlus />}
+            onClick={() => {
+              reset();
+              send({ type: "NEW" });
+            }}
+            colorScheme="green"
+            variant="outline"
+            margin={2}
+          >
+            New
+          </Button>
         </Box>
       )}
     </Container>
