@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, DarkMode } from "@chakra-ui/react";
 import Navbar from "@/components/navbar";
 import { QueryClientProvider } from "@/components/queryClient";
 
@@ -30,8 +30,10 @@ export default function RootLayout({
     <html lang="en">
       <body className="body">
         <Providers>
-          <Navbar />
-          {children}
+          <DarkMode>
+            <Navbar />
+            {children}
+          </DarkMode>
         </Providers>
       </body>
     </html>
