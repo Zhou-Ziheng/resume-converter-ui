@@ -89,7 +89,7 @@ const ConvertResume = () => {
     });
   };
 
-  const { mutate, isLoading } = useMutation({
+  const { mutate } = useMutation({
     mutationFn: post,
     onSuccess: (data: unknown) => {
       console.log(data);
