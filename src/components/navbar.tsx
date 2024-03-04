@@ -1,4 +1,6 @@
 import { Box, Button, Flex } from "@chakra-ui/react";
+import logoSvg from "../../public/logo.svg";
+import Image from "next/image";
 
 const MenuButton = ({ text }: { text: string }) => {
   return <Button variant="ghost">{text}</Button>;
@@ -21,7 +23,9 @@ const Navbar = () => {
           align="center"
           justify="space-between"
         >
-          <Box>ATSify</Box>
+          <Box>
+            <Image src={logoSvg} alt="ATSify Logo" height="40" />
+          </Box>
           <Box display="flex" gap="6">
             <MenuButton text="Home" />
             <MenuButton text="FAQ" />
