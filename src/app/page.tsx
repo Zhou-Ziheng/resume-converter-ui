@@ -19,7 +19,7 @@ export default function Home() {
       <Container marginTop="8">
         <ConvertResume />
       </Container>
-      <Box marginTop="auto" />
+      <Box height="100px" />
     </Box>
   );
 }

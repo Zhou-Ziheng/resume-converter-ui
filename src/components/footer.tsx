@@ -17,7 +17,7 @@ const Footer = () => {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
   return (
-    <footer style={{ position: "fixed", bottom: 0, width: "100%" }}>
+    <footer style={{ position: "absolute", bottom: 0, width: "100%" }}>
       <Box margin="4" display="flex" flexDirection="column">
         <Text fontSize="sm" color="#FFFFFF77" textAlign="center">
           © 2024 ATSify
