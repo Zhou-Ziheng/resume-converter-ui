@@ -8,6 +8,10 @@ import {
   Button,
   Container,
   FormControl,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   Spinner,
   Text,
 } from "@chakra-ui/react";
@@ -240,8 +244,9 @@ const ConvertResume = () => {
             <Text>{file.size / 1000} KB</Text>
           </Box>
           <Text fontSize="xs" textAlign="center">
-            Your Files are Ready
+            Your Files are Ready 
           </Text>
+          
           <Box
             borderRadius="5"
             padding="3"
@@ -254,6 +259,20 @@ const ConvertResume = () => {
             <Text>resume.zip</Text>
             <Text>{convertedFile.size / 1000} KB</Text>
           </Box>
+          <Popover trigger="hover">
+            <PopoverTrigger>
+              <Text fontSize="xs" color="#FFFFFF66" textAlign="center" as='u'>
+                Why am I downloading a zip?
+              </Text>
+            </PopoverTrigger>
+            <PopoverContent>
+              <PopoverBody>
+                The zip file includes a LaTeX file and a compiled PDF. Since the
+                parsing is not perfect, you may want to edit the LaTeX file
+                directly
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
           <Button
             leftIcon={<IoMdDownload />}
             colorScheme="green"

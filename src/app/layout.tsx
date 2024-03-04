@@ -5,6 +5,7 @@ import "./globals.css";
 import { ChakraProvider, ColorModeScript, DarkMode } from "@chakra-ui/react";
 import Navbar from "@/components/navbar";
 import { QueryClientProvider } from "@/components/queryClient";
+import Footer from "@/components/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,6 +34,7 @@ export default function RootLayout({
         <Providers>
             <Navbar />
             {children}
+            <Footer />
         </Providers>
       </body>
     </html>
