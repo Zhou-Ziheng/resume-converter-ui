@@ -6,6 +6,7 @@ import { ChakraProvider, ColorModeScript, DarkMode } from "@chakra-ui/react";
 import Navbar from "@/components/navbar";
 import { QueryClientProvider } from "@/components/queryClient";
 import Footer from "@/components/footer";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,9 +33,10 @@ export default function RootLayout({
     <html lang="en">
       <body className="body">
         <Providers>
-            <Navbar />
-            {children}
-            <Footer />
+          <Analytics />
+          <Navbar />
+          {children}
+          <Footer />
         </Providers>
       </body>
     </html>
