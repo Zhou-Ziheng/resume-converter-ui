@@ -20,7 +20,18 @@ type FileUploadProps = {
 };
 
 const FileUpload = ({ file, onDrop, onRemove }: FileUploadProps) => {
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "application/pdf": ["pdf"],
+      "application/msword": ["doc"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        ["docx"],
+      "image/jpeg": ["jpg", "jpeg"],
+      "image/png": ["png"],
+      "text/plain": ["txt"],
+    },
+  });
 
   return (
     <Box
@@ -34,9 +45,9 @@ const FileUpload = ({ file, onDrop, onRemove }: FileUploadProps) => {
       borderRadius={10}
       padding={4}
       margin={2}
-      bg={isDragActive ? '#FFFFFF11' : undefined}
+      bg={isDragActive ? "#FFFFFF11" : undefined}
       transition="background-color 0.3s ease-in-out"
-      _hover={{bg: '#FFFFFF11'}}
+      _hover={{ bg: "#FFFFFF11" }}
     >
       <input {...getInputProps()} />
       {file && (
@@ -64,19 +75,18 @@ const FileUpload = ({ file, onDrop, onRemove }: FileUploadProps) => {
           </Button>
         </Box>
       )}
-      
-        <>
-          <IoCloudDownloadOutline size={32} color="#74bb88" />
 
-          <Text>Drag&Drop Resume Here</Text>
-          <Text fontSize="xs" color="#FFFFFF66">
-            or
-          </Text>
-          <Button leftIcon={<GoPaperclip />} size="xs">
-            Choose File
-          </Button>
-        </>
-      
+      <>
+        <IoCloudDownloadOutline size={32} color="#74bb88" />
+
+        <Text>Drag&Drop Resume Here</Text>
+        <Text fontSize="xs" color="#FFFFFF66">
+          or
+        </Text>
+        <Button leftIcon={<GoPaperclip />} size="xs">
+          Choose File
+        </Button>
+      </>
     </Box>
   );
 };

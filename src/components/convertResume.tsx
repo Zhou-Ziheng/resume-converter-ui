@@ -75,7 +75,7 @@ const ConvertResume = () => {
       return false;
     }
 
-    const supportedTypes = ["pdf", "jpg", "jpeg", "png"];
+    const supportedTypes = ["pdf", "jpg", "jpeg", "png", "docx", "doc", "txt"];
 
     const fileType = file.name.split(".").pop();
     if (fileType && !supportedTypes.includes(fileType)) {
@@ -94,7 +94,14 @@ const ConvertResume = () => {
       return "image/jpeg";
     } else if (fileType == "png") {
       return "image/png";
+    } else if (fileType == "docx") {
+      return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    } else if (fileType == "doc") {
+      return "application/msword";
+    } else if (fileType == "txt") {
+      return "text/plain";
     }
+
     return "";
   };
   const post = (fileData: string | ArrayBuffer) => {
@@ -244,9 +251,9 @@ const ConvertResume = () => {
             <Text>{file.size / 1000} KB</Text>
           </Box>
           <Text fontSize="xs" textAlign="center">
-            Your Files are Ready 
+            Your Files are Ready
           </Text>
-          
+
           <Box
             borderRadius="5"
             padding="3"
@@ -261,7 +268,7 @@ const ConvertResume = () => {
           </Box>
           <Popover trigger="hover">
             <PopoverTrigger>
-              <Text fontSize="xs" color="#FFFFFF66" textAlign="center" as='u'>
+              <Text fontSize="xs" color="#FFFFFF66" textAlign="center" as="u">
                 Why am I downloading a zip?
               </Text>
             </PopoverTrigger>
