@@ -123,6 +123,9 @@ const ConvertResume = () => {
   const { mutate } = useMutation({
     mutationFn: post,
     onSuccess: async (response: any) => {
+      if (response?.status !== 200) {
+        throw new Error("Failed to convert resume");
+      }
       if (state.matches("processing")) {
         const blob = await response.blob();
         setConvertedFile(blob);
