@@ -3,10 +3,11 @@ import styles from "./page.module.css";
 import { Box, Center, Container, Text } from "@chakra-ui/react";
 import Navbar from "@/components/navbar";
 import ConvertResume from "@/components/convertResume";
+import { Explainer } from "@/components/explainer";
 
 export default function Home() {
   return (
-    <Box display="flex" flexDirection="column" width="100vw">
+    <Box display="block" flexDirection="column" width="100vw">
       <Text color="#74bb88" fontSize="6xl" fontWeight="400" textAlign="center">
         Make Your Resume
       </Text>
@@ -18,6 +19,10 @@ export default function Home() {
       </Text>
       <Container marginTop="8">
         <ConvertResume />
+      </Container>
+
+      <Container marginTop="8" maxW="800px">
+        <Explainer />
       </Container>
       <Box height="100px" />
     </Box>
