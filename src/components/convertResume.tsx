@@ -70,8 +70,8 @@ const ConvertResume = () => {
   } = useForm<FormValues>();
 
   const validateFile = (file: File) => {
-    if (file.size > 1000000) {
-      alert("File size must be less than 1MB");
+    if (file.size > 10000000) {
+      alert("File size must be less than 10MB");
       return false;
     }
 
