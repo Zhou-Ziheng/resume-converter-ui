@@ -2,7 +2,7 @@
 
 import { createMachine } from "xstate";
 import { useMachine } from "@xstate/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -21,18 +21,27 @@ import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { FaPlus } from "react-icons/fa6";
 import { useMutation } from "@tanstack/react-query";
 import { IoMdDownload } from "react-icons/io";
+import { Styles, Styling } from "./styling";
+import { motion, AnimatePresence } from "framer-motion";
+import FileBox from "./fileBox";
 
 const counterMachine = createMachine({
   initial: "upload",
   states: {
     upload: {
       on: {
+        SUBMIT: "styling",
+      },
+    },
+    styling: {
+      on: {
+        BACK: "upload",
         SUBMIT: "processing",
       },
     },
     processing: {
       on: {
-        CANCEL: "upload",
+        CANCEL: "styling",
         READY: "download",
       },
     },
@@ -52,6 +61,22 @@ const ConvertResume = () => {
   const [state, send] = useMachine(counterMachine);
   const [file, setFile] = useState<File | null>(null);
   const [conversionError, setConversionError] = useState<string | null>(null);
+
+  const [styles, setStyles] = useState<Styles>({
+    mainHeader: { color: "#000000", isBold: true, isItalic: false },
+    mainSubHeader: { color: "#000000", isBold: false, isItalic: false },
+    sectionTitles: { color: "#000000", isBold: true, isItalic: false },
+    entryHeaders: { color: "#000000", isBold: true, isItalic: false },
+    bullets: { color: "#000000", isBold: false, isItalic: false },
+  });
+
+  useEffect(() => {
+    const styles = localStorage.getItem("styles");
+    if (styles) {
+      setStyles(JSON.parse(styles));
+    }
+  }, []);
+
   const [fileData, setFileData] = useState<string | ArrayBuffer | null>(null);
   const [cancelHover, setCancelHover] = useState(false);
   const [convertedFile, setConvertedFile] = useState<Blob | null>(null);
@@ -70,8 +95,8 @@ const ConvertResume = () => {
   } = useForm<FormValues>();
 
   const validateFile = (file: File) => {
-    if (file.size > 10000000) {
-      alert("File size must be less than 10MB");
+    if (file.size > 1000000) {
+      alert("File size must be less than 1MB");
       return false;
     }
 
@@ -104,7 +129,34 @@ const ConvertResume = () => {
 
     return "";
   };
-  const post = (fileData: string | ArrayBuffer) => {
+
+  const stylesToAPIMapper = (styles: Styles) => {
+    const { mainHeader, mainSubHeader, sectionTitles, entryHeaders, bullets } =
+      styles;
+
+    return {
+      header_color: mainHeader.color,
+      subheader_color: mainSubHeader.color,
+      section_header_color: sectionTitles.color,
+      entry_title_color: entryHeaders.color,
+      company_color: entryHeaders.color,
+      date_color: entryHeaders.color,
+      location_color: entryHeaders.color,
+      project_title_color: entryHeaders.color,
+      project_tools_color: entryHeaders.color,
+      single_entry_color: entryHeaders.color,
+      skills_color: entryHeaders.color,
+      bullet_color: bullets.color,
+    };
+  };
+
+  const post = ({
+    fileData,
+    styles,
+  }: {
+    fileData: string | ArrayBuffer;
+    styles: Styles;
+  }) => {
     const formData = new FormData();
     if (file && fileData) {
       const fileToSend = new File([fileData], file.name, {
@@ -112,6 +164,7 @@ const ConvertResume = () => {
       });
       formData.append("file", fileToSend);
     }
+    formData.append("style", JSON.stringify(stylesToAPIMapper(styles)));
     // https://api.resume.tonyzhou.ca
     // http://localhost:5000
     return fetch("https://api.resume.tonyzhou.ca/v1/convert", {
@@ -143,7 +196,7 @@ const ConvertResume = () => {
       alert("Please upload your Resume");
       return;
     }
-    mutate(fileData);
+    mutate({ fileData: fileData, styles: styles });
     send({ type: "SUBMIT" });
   };
 
@@ -183,95 +236,122 @@ const ConvertResume = () => {
   };
 
   return (
-    <Container backgroundColor="#00000090" borderRadius="15" padding="5">
+    <Container maxW="4xl">
       {state.matches("upload") && (
-        <FormControl display="flex" flexDirection="column">
-          {conversionError && (
-            <Text fontSize="xs" color="red" textAlign="center">
-              Something went wrong, please try again or try a different file
-            </Text>
-          )}
-          <FileUpload onDrop={validateFiles} file={file} onRemove={reset} />
-          <Button
-            type="submit"
-            onClick={handleSubmitResume}
-            colorScheme="green"
-            isDisabled={!file}
-            margin={2}
-            alignContent="center"
-            justifyItems={"center"}
-            rightIcon={<ChevronRightIcon />}
-          >
-            Convert
-          </Button>
-        </FormControl>
+        <Container maxW="2xl">
+          <FormControl display="flex" flexDirection="column">
+            {conversionError && (
+              <Text fontSize="xs" color="red" textAlign="center">
+                Something went wrong, please try again or try a different file
+              </Text>
+            )}
+            <FileUpload onDrop={validateFiles} file={file} onRemove={reset} />
+            <Box display="flex" justifyContent="center">
+              <Button
+                type="submit"
+                onClick={() => {
+                  send({ type: "SUBMIT" });
+                }}
+                colorScheme="brandBlue"
+                isDisabled={!file}
+                margin={2}
+                alignContent="center"
+                justifyItems={"center"}
+              >
+                Continue
+              </Button>
+            </Box>
+          </FormControl>
+        </Container>
+      )}
+      {state.matches("styling") && file && (
+        <Container maxW="4xl" gap="10px" display="flex" flexDirection="column">
+          <Container maxW="2xl">
+            <FileUpload
+              onDrop={validateFiles}
+              file={file}
+              onRemove={reset}
+              showPrompt={false}
+            />
+          </Container>
+          <Styling styles={styles} setStyles={setStyles} />
+          <Box display="flex" justifyContent="center" gap="20px">
+            <Button
+              type="submit"
+              onClick={() => {
+                send({ type: "BACK" });
+              }}
+              colorScheme="brandBlue"
+              isDisabled={!file}
+              margin={2}
+              alignContent="center"
+              justifyItems={"center"}
+              variant={"outline"}
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              onClick={handleSubmitResume}
+              colorScheme="brandBlue"
+              isDisabled={!file}
+              margin={2}
+              alignContent="center"
+              justifyItems={"center"}
+            >
+              Convert
+            </Button>
+          </Box>
+        </Container>
       )}
       {state.matches("processing") && file && (
-        <Box display="flex" flexDirection="column">
-          <Box
-            borderRadius="5"
-            padding="3"
-            margin={2}
-            bg="#FFFFFF11"
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Text>{file.name}</Text>
-            <Text>{file.size / 1000} KB</Text>
-          </Box>
-          <Text fontSize="xs" color="#FFFFFF66" textAlign="center">
-            This process typically takes ~10s
+        <Container
+          borderRadius="15"
+          padding="5"
+          display="flex"
+          flexDirection="column"
+          bg="brand.primaryTransparent"
+        >
+          <FileBox name={file.name} size={file.size} />
+          <Text fontSize="xs" textAlign="center">
+            This process typically takes ~20s
           </Text>
-          <Button
-            type="submit"
-            onMouseEnter={() => setCancelHover(true)}
-            onMouseLeave={() => setCancelHover(false)}
-            onClick={() => {
-              send({ type: "CANCEL" });
-              setCancelHover(false);
-            }}
-            leftIcon={!cancelHover ? <Spinner size="sm" /> : undefined}
-            colorScheme="green"
-            margin={2}
-          >
-            {cancelHover ? "Cancel" : "Converting"}
-          </Button>
-        </Box>
+          <Box display="flex" justifyContent="center" gap="20px">
+            <Button
+              type="submit"
+              onMouseEnter={() => setCancelHover(true)}
+              onMouseLeave={() => setCancelHover(false)}
+              onClick={() => {
+                send({ type: "CANCEL" });
+                setCancelHover(false);
+              }}
+              leftIcon={!cancelHover ? <Spinner size="sm" /> : undefined}
+              colorScheme="brandBlue"
+              margin={2}
+              width="200px"
+            >
+              {cancelHover ? "Cancel" : "Converting"}
+            </Button>
+          </Box>
+        </Container>
       )}
       {state.matches("download") && file && convertedFile && (
-        <Box display="flex" flexDirection="column">
-          <Box
-            borderRadius="5"
-            padding="3"
-            margin={2}
-            bg="#FFFFFF11"
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Text>{file.name}</Text>
-            <Text>{file.size / 1000} KB</Text>
-          </Box>
+        <Container
+          borderRadius="15"
+          padding="5"
+          display="flex"
+          flexDirection="column"
+          bg="brand.primaryTransparent"
+        >
+          <FileBox name={file.name} size={file.size} />
           <Text fontSize="xs" textAlign="center">
             Your Files are Ready
           </Text>
 
-          <Box
-            borderRadius="5"
-            padding="3"
-            margin={2}
-            bg="#FFFFFF11"
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Text>resume.zip</Text>
-            <Text>{convertedFile.size / 1000} KB</Text>
-          </Box>
+          <FileBox name="resume.zip" size={convertedFile.size} />
           <Popover trigger="hover">
             <PopoverTrigger>
-              <Text fontSize="xs" color="#FFFFFF66" textAlign="center" as="u">
+              <Text fontSize="xs" textAlign="center" as="u">
                 Why am I downloading a zip?
               </Text>
             </PopoverTrigger>
@@ -283,29 +363,31 @@ const ConvertResume = () => {
               </PopoverBody>
             </PopoverContent>
           </Popover>
-          <Button
-            leftIcon={<IoMdDownload />}
-            colorScheme="green"
-            margin={2}
-            onClick={() => {
-              downloadBlobAsZip(convertedFile, "resume.zip");
-            }}
-          >
-            Download
-          </Button>
-          <Button
-            leftIcon={<FaPlus />}
-            onClick={() => {
-              reset();
-              send({ type: "NEW" });
-            }}
-            colorScheme="green"
-            variant="outline"
-            margin={2}
-          >
-            New
-          </Button>
-        </Box>
+          <Box display="flex" justifyContent="center" gap="20px">
+            <Button
+              leftIcon={<IoMdDownload />}
+              colorScheme="brandBlue"
+              margin={2}
+              onClick={() => {
+                downloadBlobAsZip(convertedFile, "resume.zip");
+              }}
+            >
+              Download
+            </Button>
+            <Button
+              leftIcon={<FaPlus />}
+              onClick={() => {
+                reset();
+                send({ type: "NEW" });
+              }}
+              colorScheme="brandBlue"
+              variant="outline"
+              margin={2}
+            >
+              New
+            </Button>
+          </Box>
+        </Container>
       )}
     </Container>
   );
