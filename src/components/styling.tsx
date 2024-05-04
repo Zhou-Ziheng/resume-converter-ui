@@ -9,6 +9,7 @@ import {
   PopoverContent,
   Text,
   Tooltip,
+  TableContainer,
 } from "@chakra-ui/react";
 import { ChromePicker } from "react-color";
 import { FaCircle } from "react-icons/fa";
@@ -55,103 +56,105 @@ export const Styling = ({
       exit={{ opacity: 0, y: 50 }}
       transition={{ duration: 0.3 }}
     >
-      <Table variant="simple">
-        <Tbody>
-          {(Object.entries(styles) as [keyof Styles, TextBlockStyle][]).map(
-            ([key, style]: [keyof Styles, TextBlockStyle]) => (
-              <Tr key={key}>
-                <Td>
-                  <b>{keyMapper[key]}</b>
-                </Td>
-                <Td>
-                  <Popover>
-                    <PopoverTrigger>
+      <TableContainer>
+        <Table variant="simple">
+          <Tbody>
+            {(Object.entries(styles) as [keyof Styles, TextBlockStyle][]).map(
+              ([key, style]: [keyof Styles, TextBlockStyle]) => (
+                <Tr key={key}>
+                  <Td>
+                    <b>{keyMapper[key]}</b>
+                  </Td>
+                  <Td>
+                    <Popover>
+                      <PopoverTrigger>
+                        <Button
+                          variant="ghost"
+                          fontWeight="400"
+                          leftIcon={<FaCircle color={style.color} />}
+                        >
+                          <Text width="80px"> {style.color}</Text>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent width="unset">
+                        <ChromePicker
+                          color={style.color}
+                          onChange={(color) => {
+                            setStyleAndSaveToStorage({
+                              ...styles,
+                              [key]: {
+                                ...styles[key],
+                                color: color.hex,
+                              },
+                            });
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </Td>
+                  <Td>
+                    <Tooltip label="Coming soon!">
                       <Button
                         variant="ghost"
                         fontWeight="400"
-                        leftIcon={<FaCircle color={style.color} />}
-                      >
-                        <Text width="80px"> {style.color}</Text>
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent width="unset">
-                      <ChromePicker
-                        color={style.color}
-                        onChange={(color) => {
+                        isDisabled
+                        onClick={() => {
                           setStyleAndSaveToStorage({
                             ...styles,
                             [key]: {
                               ...styles[key],
-                              color: color.hex,
+                              isBold: !styles[key].isBold,
                             },
                           });
                         }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </Td>
-                <Td>
-                  <Tooltip label="Coming soon!">
+                      >
+                        {style.isBold ? <b>bold</b> : "bold"}
+                      </Button>
+                    </Tooltip>
+                  </Td>
+                  <Td>
+                    <Tooltip label="Coming soon!">
+                      <Button
+                        variant="ghost"
+                        fontWeight="400"
+                        isDisabled
+                        onClick={() => {
+                          setStyleAndSaveToStorage({
+                            ...styles,
+                            [key]: {
+                              ...styles[key],
+                              isItalic: !styles[key].isItalic,
+                            },
+                          });
+                        }}
+                      >
+                        {style.isItalic ? <i>Italic</i> : "italic"}
+                      </Button>
+                    </Tooltip>
+                  </Td>
+                  <Td>
                     <Button
                       variant="ghost"
-                      fontWeight="400"
-                      isDisabled
                       onClick={() => {
                         setStyleAndSaveToStorage({
                           ...styles,
                           [key]: {
-                            ...styles[key],
-                            isBold: !styles[key].isBold,
+                            color: "#000000",
+                            isBold: false,
+                            isItalic: false,
                           },
                         });
                       }}
                     >
-                      {style.isBold ? <b>bold</b> : "bold"}
+                      <GrPowerReset />
                     </Button>
-                  </Tooltip>
-                </Td>
-                <Td>
-                  <Tooltip label="Coming soon!">
-                    <Button
-                      variant="ghost"
-                      fontWeight="400"
-                      isDisabled
-                      onClick={() => {
-                        setStyleAndSaveToStorage({
-                          ...styles,
-                          [key]: {
-                            ...styles[key],
-                            isItalic: !styles[key].isItalic,
-                          },
-                        });
-                      }}
-                    >
-                      {style.isItalic ? <i>Italic</i> : "italic"}
-                    </Button>
-                  </Tooltip>
-                </Td>
-                <Td>
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      setStyleAndSaveToStorage({
-                        ...styles,
-                        [key]: {
-                          color: "#000000",
-                          isBold: false,
-                          isItalic: false,
-                        },
-                      });
-                    }}
-                  >
-                    <GrPowerReset />
-                  </Button>
-                </Td>
-              </Tr>
-            )
-          )}
-        </Tbody>
-      </Table>
+                  </Td>
+                </Tr>
+              )
+            )}
+          </Tbody>
+        </Table>
+      </TableContainer>
     </motion.div>
   );
 };

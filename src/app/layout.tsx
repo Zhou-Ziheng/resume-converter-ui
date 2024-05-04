@@ -1,7 +1,6 @@
 "use client";
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.scss";
 import { useColorMode } from "@chakra-ui/react";
 import {
@@ -14,11 +13,8 @@ import Navbar from "@/components/navbar";
 import { QueryClientProvider } from "@/components/queryClient";
 import Footer from "@/components/footer";
 import { Analytics } from "@vercel/analytics/react";
-import "@fontsource/playfair-display";
-import "@fontsource/bree-serif";
 import "@fontsource/ibm-plex-serif";
-
-const inter = Inter({ subsets: ["latin"] });
+// import "@fontsource/inter";
 
 const metadata: Metadata = {
   title: "ATSify",
@@ -76,7 +72,7 @@ const theme = extendTheme({
   colors,
   fonts: {
     heading: "ibm plex serif, serif",
-    body: "Inter",
+    body: "Inter, serif",
   },
   components: {
     Table: {
