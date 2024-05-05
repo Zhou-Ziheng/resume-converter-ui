@@ -19,10 +19,10 @@ const Footer = () => {
   return (
     <footer style={{ position: "absolute", bottom: 0, width: "100%" }}>
       <Box margin="4" display="flex" flexDirection="column">
-        <Text fontSize="sm" color="#FFFFFF77" textAlign="center">
+        <Text fontSize="sm" textAlign="center">
           © 2024 ATSify
         </Text>
-        <Text fontSize="xs" color="#FFFFFF77" textAlign="center">
+        <Text fontSize="xs" textAlign="center">
           By using ATSify, you agree to our{" "}
           <u onClick={() => setIsTermsOpen(true)}>Terms of Service</u> and{" "}
           <u onClick={() => setIsPrivacyOpen(true)}>Privacy Policy</u>

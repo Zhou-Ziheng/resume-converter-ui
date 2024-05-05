@@ -1,25 +1,28 @@
-import Image from "next/image";
-import styles from "./page.module.css";
-import { Box, Center, Container, Text } from "@chakra-ui/react";
-import Navbar from "@/components/navbar";
-import ConvertResume from "@/components/convertResume";
+"use client";
 
-export default function Home() {
+import { Box, Container, Heading, Text, useTheme } from "@chakra-ui/react";
+import ConvertResume from "@/components/convertResume";
+import { useToken } from "@chakra-ui/react";
+
+const Home = () => {
+  const theme = useTheme();
+  const primaryBrandColor = theme.colors.brand.primary;
+
   return (
-    <Box display="flex" flexDirection="column" width="100vw">
-      <Text color="#74bb88" fontSize="6xl" fontWeight="400" textAlign="center">
-        Make Your Resume
+    <Box display="flex" flexDirection="column" width="100vw" gap="4px">
+      <Heading fontSize="5xl" fontWeight="600" textAlign="center">
+        Make Your Resume{" "}
+        <i style={{ color: primaryBrandColor }}>ATS Friendly</i>
+      </Heading>
+      <Text fontSize="md" textAlign="center" marginTop="2">
+        Add your resume and convert to PDF and Latex format
       </Text>
-      <Text fontSize="6xl" fontWeight="600" textAlign="center">
-        ATS Friendly
-      </Text>
-      <Text fontSize="md" textAlign="center" marginTop="2" color="#FFFFFF66">
-        Convert your resume into Latex and PDF format
-      </Text>
-      <Container marginTop="8">
+      <Container marginTop="8" maxW="4xl">
         <ConvertResume />
       </Container>
       <Box height="100px" />
     </Box>
   );
-}
+};
+
+export default Home;

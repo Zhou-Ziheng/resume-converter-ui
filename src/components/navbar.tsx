@@ -1,11 +1,13 @@
-import { Box, Button, Flex } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, useColorMode } from "@chakra-ui/react";
+import { useTheme } from "@chakra-ui/react";
 import logoSvg from "../../public/logo.svg";
 import Image from "next/image";
+import { DarkModeSwitch } from "react-toggle-dark-mode";
 
-const MenuButton = ({ text }: { text: string }) => {
-  return <Button variant="ghost">{text}</Button>;
-};
 const Navbar = () => {
+  const { colorMode, toggleColorMode } = useColorMode();
+  const theme = useTheme();
+  const primaryBrandColor = theme.colors.brand.primary;
   return (
     <header>
       <Box
@@ -24,15 +26,40 @@ const Navbar = () => {
           justify="space-between"
         >
           <Box>
-            <Image src={logoSvg} alt="ATSify Logo" height="40" />
+            <a href="/">
+              <Image
+                src={logoSvg}
+                alt="ATSify Logo"
+                height="40"
+                color={primaryBrandColor}
+              />
+            </a>
           </Box>
           <Box display="flex" gap="6">
-            <MenuButton text="Home" />
+            {/* <MenuButton text="Home" />
             <MenuButton text="FAQ" />
-            <MenuButton text="Contact" />
+            <MenuButton text="Contact" /> */}
+            {/* <Button onClick={toggleColorMode}>
+              Toggle {colorMode === "light" ? "Dark" : "Light"}
+            </Button> */}
           </Box>
-          <Box>
-            <Button size="lg">Get Start</Button>
+          <Box display="flex">
+            {/* <Button width="unset" height="unset" padding="10px" variant="ghost">
+              <Text
+                color="brand.primary"
+                fontFamily="ibm plex serif"
+                fontSize="3xl"
+              >
+                FAQ
+              </Text>
+            </Button> */}
+            <DarkModeSwitch
+              checked={colorMode === "dark"}
+              onChange={toggleColorMode}
+              size={50}
+              moonColor={primaryBrandColor}
+              sunColor={primaryBrandColor}
+            />
           </Box>
         </Flex>
       </Box>
