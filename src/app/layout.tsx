@@ -14,7 +14,7 @@ import { QueryClientProvider } from "@/components/queryClient";
 import Footer from "@/components/footer";
 import { Analytics } from "@vercel/analytics/react";
 import "@fontsource/ibm-plex-serif";
-// import "@fontsource/inter";
+import "@fontsource/inter";
 
 const metadata: Metadata = {
   title: "ATSify",
