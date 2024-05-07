@@ -12,7 +12,7 @@ const Home = () => {
     <Box display="flex" flexDirection="column" width="100vw" gap="4px">
       <Heading fontSize="5xl" fontWeight="600" textAlign="center">
         Make Your Resume{" "}
-        <i style={{ color: primaryBrandColor }}>ATS Friendly</i>
+        <i style={{ color: primaryBrandColor }}>Professional</i>
       </Heading>
       <Text fontSize="md" textAlign="center" marginTop="2">
         Add your resume and convert to PDF and Latex format

@@ -18,7 +18,7 @@ import "@fontsource/inter";
 
 const metadata: Metadata = {
   title: "ATSify",
-  description: "Make Your Resume ATS Friendly",
+  description: "Make Your Resume Professional",
 };
 const config: ThemeConfig = {
   initialColorMode: "dark",
